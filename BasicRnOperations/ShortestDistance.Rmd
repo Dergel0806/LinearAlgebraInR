@@ -1,0 +1,66 @@
+---
+title: "MidtermIhorMarkevych"
+author: "Ihor Markevych"
+date: "10/26/2019"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: 
+      collapsed: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pracma)
+```
+
+# Task
+
+The subspace W is defined as the span of $u_1$ and $u_2$ ($W$ = Span{$u_1$, $u_2$}).
+The coordinate of a point $y$ (which doesn’t lie on $W$) is given by the vector $y = \begin{bmatrix} -1 \\ -5 \\ 10 \end{bmatrix}$. Find the shortest distance from $y$ to  $W$ if $u_1 = \begin{bmatrix} 5 \\ -2 \\ 1 \end{bmatrix}$ and $u_2 = \begin{bmatrix} 1 \\ 2 \\ -1 \end{bmatrix}$.
+
+
+# Functions
+
+## Dot
+```{r}
+dot <- function(v, w){
+    sum(v * w)
+}
+```
+
+## Norm
+
+```{r}
+norm <- function(v){
+    sqrt(dot(v, v))
+}
+```
+
+## Project
+
+```{r}
+# project u on v
+project <- function(u, v){
+   dot(u, v) / dot(v, v) * v
+}
+```
+
+# Vectors input
+
+```{r}
+u1 <- c(5, -2, 1)
+u2 <- c(1, 2, -1)
+
+y <- c(-1, -5, 10)
+```
+
+# Solution
+
+Shortest distance between vector and a spane is a norm (length) of a orthogonal part of the vector.  
+Othrogonal part of the vector is defined as $orth_W(y) = y - proj_W(y)$, where $proj_W(y)$ is a projection of y on spane W.  
+For our spane $proj_W(y) = proj_W(u_1) + proj_W(u_2)$.
+
+```{r}
+norm(y - project(y, u1) - project(y, u2))
+```
