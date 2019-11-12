@@ -1,0 +1,169 @@
+---
+title: "Least Squares"
+author: "Ihor Markevych"
+date: "10/12/2019"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: 
+      collapsed: FALSE
+---
+
+```{r setup, include=FALSE}
+library(pracma)
+library(dplyr)
+library(kableExtra)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Custom functions
+
+## Dot product:
+
+Following function computes dot product of vectors in $R^n$.
+
+```{r}
+dot <- function(x, y){
+  sum(x * y)
+}
+```
+
+## Norm
+
+Following function computes norm of vector in $R^n$.
+
+```{r}
+norm2 <- function(x) {
+  sqrt(dot(x, x))
+}
+```
+
+## Least Squares Solution
+
+Next function computes $\hat{x}$ for Least Squares Model.
+
+```{r}
+xHat <- function(A, b) {
+  inv(t(A) %*% A) %*% t(A) %*% b
+}
+```
+
+## Least Squares Error
+
+Next function computes error of Least Squares model.
+
+```{r}
+lSError <- function(A,x,b) {
+  norm2(A %*% x - b)
+}
+```
+
+## Create Model
+
+Next function will create Least Squares model from dataframe.
+
+```{r}
+# d - data, xCols - vector of column names of predictors, y - name of goal column
+leastSquares <- function(d, xCols, yCol) {
+  y <- as.matrix(d[yCol])
+  X <- as.matrix(cbind(replicate(length(y), 1), d[xCols]))
+  sol <- xHat(X, y)
+  return(c(lSError(X, sol, y), sol))
+}
+```
+
+## Print Model and Error
+
+Let's create function for printing model formula and its error.
+
+```{r}
+printModel <- function(coefs, goal, modelPredictors, error) {
+  cat(goal, ' = ', coefs[1])
+  for(i in 1:length(modelPredictors)){
+    cat(' + ', coefs[i + 1], ' * ', modelPredictors[i])  
+  }
+  cat('\n')
+  cat('Error of this model is ', error, '.\n')
+}  
+```
+
+## Predict using model
+
+Next function will predict goal variable using vector of coefficients and predictors values.
+
+```{r}
+predict <- function(coefs, values){
+  sum <- coefs[1]
+  for(i in 1:length(values)){
+    sum <- sum + coefs[i + 1] * values[i]
+  }
+  return(sum)
+}
+```
+
+# Load data
+
+```{r}
+d <- read.csv('rating.csv')
+```
+
+Let's check the data:
+```{r}
+head(d) %>%
+  kable(format = 'html', caption = 'Quarterback ratings for the 2008 NFL season') %>%
+  kable_styling(font = 12, 'bordered', full_width = T)
+```
+
+# Models
+
+## Creation
+
+Now, let's use created functions and compute Least Squares models and their errors:
+
+```{r}
+goalCol <- 'Rating.Pts'
+
+model1Predictors <- 'Pct.Comp'
+model2Predictors <- c('Pct.Comp', 'Pct.Int')
+
+model1 <- leastSquares(d, model1Predictors , goalCol)
+model1Err <- model1[1]
+model1 <- model1[-1]
+
+model2 <- leastSquares(d, model2Predictors , goalCol)
+model2Err <- model2[1]
+model2 <- model2[-1]
+```
+
+
+## Model 1
+
+First model (predicting quarterback rating ffrom percentage of completions):
+
+```{r}
+printModel(model1, goalCol, model1Predictors, model1Err)
+```
+
+Predicted quarterback rating for percentage of completions of 60%:
+
+``` {r}
+predict(model1, 60)
+```
+
+## Model 2
+
+Second model (predicting quarterback rating ffrom percentage of completions and percentage of interceptions):
+
+```{r}
+printModel(model2, goalCol, model2Predictors, model2Err)
+```
+
+Predicted quarterback rating for percentage of completions of 60% and percentage of interceptions of 3%:
+
+``` {r}
+predict(model2, c(60,3))
+```
+
+## Comparison
+
+Using an extra variable, namely percentage of interceptions, **improve** the accuracy of the model for this data set. It improves it from error of `r model1Err` to `r model2Err`.
