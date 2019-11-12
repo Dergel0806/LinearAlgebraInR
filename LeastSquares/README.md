@@ -1,7 +1,7 @@
 # Least Squares
 
 ## Football
-Now that football season is upon us, let’s put Linear Algebra to good use
+Now that football season is upon us, let’s put Linear Algebra to good use!
 
 ## Mileage
 
