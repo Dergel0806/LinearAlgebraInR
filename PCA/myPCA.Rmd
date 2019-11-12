@@ -1,0 +1,69 @@
+---
+title: "PCA"
+author: "Ihor Markevych"
+date: "11/11/2019"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Function 
+
+## Center
+
+```{r}
+center <- function(d){
+  mean <-  colMeans(d)
+  dCentered <- sweep(d, 2, mean, '-')
+  dCentered
+}
+```
+
+## Covariance matrix
+
+```{r}
+covarianceMatrix <- function(d){
+  cov <- t(d) %*% d / (ncol(d) - 1)
+  cov  
+}
+```
+
+## PCA
+
+**Input:**  
+* `d` - a data frame that contains the data set  
+* `desiredVariance` - a scaler that denotes the desired percentage of variance preserved in the transformed data set
+
+**Output:**  
+* `number` - the minimum number of principal components that is necessary to retain the desired variance specified by the user (`desiredVariance`)  
+* `PCA` - the principal components corresponding to previous part, in a matrix   
+* `transformed` - the transformed data set in a matrix
+
+```{r}
+myPCA <- function(d, desiredVariance=.95){
+  d <- data.matrix(d)
+  eigens <- eigen(covarianceMatrix(center(d)))
+  number <- which(cumsum(eigens$values / sum(eigens$values)) >= desiredVariance)[1]
+  
+  eigens$vectors <- apply(eigens$vectors, 2, function(x) x / sqrt(sum(x ^ 2)))
+  
+  PCA <- eigens$vectors[,1:number]
+  
+  transformed <- d %*% PCA
+  
+  list(number, PCA, transformed)
+}
+```
+
+# Test function
+
+Test created function on the first `5` features of R `longley` data set with the desired retained variance of `0.98`. Longley data set is a data frame with 7 features related to economics. You will use the following features for this test: `GNP.deflator`, `GNP`, `Unemployed`, `Armed.Forces`, and `Population`. 
+
+```{r}
+myPCA(longley[,1:5], .98)
+```
