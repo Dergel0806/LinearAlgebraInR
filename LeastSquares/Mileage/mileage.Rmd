@@ -1,0 +1,157 @@
+---
+title: "MidtermIhorMarkevych"
+author: "Ihor Markevych"
+date: "10/26/2019"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: 
+      collapsed: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pracma)
+```
+
+# Task
+
+Numerous factors affect cars’ gasoline mileage. In this problem you’ll consider the relationship between gasoline mileage (mpg) and engine displacement (liters).  
+  
+1. Use the data in `mileage.csv`to
+create a linear regression model $mileage = \beta_0 + \beta_1 \frac{1}{\sqrt{disp}}$. Report the model parameters.
+1. Use your model to predict the mpg of a car whose engine
+displacement is 1.8 liters.
+
+
+# Functions
+
+## Dot
+```{r}
+dot <- function(v, w){
+    sum(v * w)
+}
+```
+
+## Norm
+
+```{r}
+norm <- function(v){
+    sqrt(dot(v, v))
+}
+```
+
+## Least Squares Solution
+
+Next function computes $\hat{x}$ for Least Squares Model.
+
+```{r}
+xHat <- function(A, b) {
+  inv(t(A) %*% A) %*% t(A) %*% b
+}
+```
+
+## Least Squares Error
+
+Next function computes error of Least Squares model.
+
+```{r}
+lSError <- function(A, x, b) {
+  norm(A %*% x - b)
+}
+```
+
+## Create Model
+
+Next function will create Least Squares model from dataframe.
+
+```{r}
+# d - data, xCols - vector of column names of predictors, y - name of goal column
+leastSquares <- function(d, xCols, yCol) {
+  y <- as.matrix(d[yCol])
+  X <- as.matrix(cbind(replicate(length(y), 1), d[xCols]))
+  sol <- xHat(X, y)
+  return(c(lSError(X, sol, y), sol))
+}
+```
+
+## Print Model and Error
+
+Let's create function for printing model formula and its error.
+
+```{r}
+printModel <- function(coefs, goal, modelPredictors, error) {
+  cat(goal, ' = ', coefs[1])
+  for(i in 1:length(modelPredictors)){
+    cat(' + ', coefs[i + 1], ' * ', modelPredictors[i])  
+  }
+  cat('\n')
+  cat('Error of this model is ', error, '.\n')
+}  
+```
+
+## Predict using model
+
+Next function will predict goal variable using vector of coefficients and predictors values.
+
+```{r}
+predict <- function(coefs, values){
+  sum <- coefs[1]
+  for(i in 1:length(values)){
+    sum <- sum + coefs[i + 1] * values[i]
+  }
+  return(sum)
+}
+```
+
+# Data reading
+
+```{r}
+d <- read.csv('mileage.csv')
+```
+
+# Data adaptation
+
+```{r}
+d['adaptDisp'] <- 1 / sqrt(d['DISP'])
+```
+
+# Model
+
+```{r}
+goalCol <- 'MILEAGE'
+
+modelPredictors <- 'adaptDisp'
+
+model <- leastSquares(d, modelPredictors , goalCol)
+modelErr <- model[1]
+model <- model[-1]
+```
+
+## Coefficients
+
+$\beta_0$ = `r model[1]`; 
+$\beta_1$ = `r model[2]`. 
+
+## Error
+
+Error of this models is `r modelErr`.
+
+## Formula
+
+General formula and error:
+
+```{r}
+printModel(model, goalCol, '1 / sqrt(displacement)', modelErr)
+```
+
+# Prediction
+
+Prediction of Mileage based on displacement of 1.8:
+
+```{r}
+dispToPredict <- 1.8
+adaptDispToPredict <- 1 / sqrt(dispToPredict)
+
+cat('Predicted mileage is', predict(model, adaptDispToPredict), 'mpg.')
+```
