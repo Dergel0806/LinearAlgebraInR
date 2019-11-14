@@ -58,10 +58,43 @@ myPCA <- function(d, desiredVariance=.95){
 }
 ```
 
-# Test function
+# Test custom function
 
 Test created function on the first `5` features of R `longley` data set with the desired retained variance of `0.98`. Longley data set is a data frame with 7 features related to economics. You will use the following features for this test: `GNP.deflator`, `GNP`, `Unemployed`, `Armed.Forces`, and `Population`. 
 
 ```{r}
 myPCA(longley[,1:5], .98)
+```
+
+# Ready functions
+
+## prcomp
+
+```{r}
+PCA1 <- prcomp(longley[,1:5], scale. = TRUE)
+PCA1
+summary(PCA1)
+attributes(PCA1)
+```
+
+## princomp
+```{r}
+PCA2 <- princomp(longley[,1:5])
+PCA2
+summary(PCA2)
+attributes(PCA2)
+head(PCA2$scores)
+```
+
+## preProcess
+```{r}
+library(caret)
+PCA3 <- preProcess(longley[,1:5], method='pca', thresh = .98)
+PCA3
+attributes(PCA3)
+```
+
+## Biplot
+```{r}
+biplot(PCA1)
 ```
