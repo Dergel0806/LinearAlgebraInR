@@ -17,10 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Center
 
 ```{r}
-center <- function(d){
-  mean <-  colMeans(d)
-  dCentered <- sweep(d, 2, mean, '-')
-  dCentered
+centerAndScale <- function(d){
+  sweep(sweep(d, 2, colMeans(d), '-'), 2, apply(d, 2, sd), '/')
 }
 ```
 
@@ -47,7 +45,7 @@ covarianceMatrix <- function(d){
 ```{r}
 myPCA <- function(d, desiredVariance=.95){
   d <- data.matrix(d)
-  eigens <- eigen(covarianceMatrix(center(d)))
+  eigens <- eigen(covarianceMatrix(centerAndScale(d)))
   number <- which(cumsum(eigens$values / sum(eigens$values)) >= desiredVariance)[1]
   
   eigens$vectors <- apply(eigens$vectors, 2, function(x) x / sqrt(sum(x ^ 2)))
