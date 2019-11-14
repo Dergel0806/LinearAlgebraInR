@@ -1513,8 +1513,8 @@ div.tocify {
 
 <div id="function" class="section level1">
 <h1>Function</h1>
-<div id="center" class="section level2">
-<h2>Center</h2>
+<div id="center-and-scale" class="section level2">
+<h2>Center and Scale</h2>
 <pre class="r"><code>centerAndScale &lt;- function(d){
   sweep(sweep(d, 2, colMeans(d), &#39;-&#39;), 2, apply(d, 2, sd), &#39;/&#39;)
 }</code></pre>

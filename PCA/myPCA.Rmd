@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Function 
 
-## Center
+## Center and Scale
 
 ```{r}
 centerAndScale <- function(d){
