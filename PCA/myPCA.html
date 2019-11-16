@@ -1540,8 +1540,6 @@ div.tocify {
   eigens &lt;- eigen(covarianceMatrix(centerAndScale(d)))
   number &lt;- which(cumsum(eigens$values / sum(eigens$values)) &gt;= desiredVariance)[1]
   
-  eigens$vectors &lt;- apply(eigens$vectors, 2, function(x) x / sqrt(sum(x ^ 2)))
-  
   PCA &lt;- eigens$vectors[,1:number]
   
   transformed &lt;- d %*% PCA

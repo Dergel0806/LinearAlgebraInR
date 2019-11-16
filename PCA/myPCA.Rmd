@@ -48,8 +48,6 @@ myPCA <- function(d, desiredVariance=.95){
   eigens <- eigen(covarianceMatrix(centerAndScale(d)))
   number <- which(cumsum(eigens$values / sum(eigens$values)) >= desiredVariance)[1]
   
-  eigens$vectors <- apply(eigens$vectors, 2, function(x) x / sqrt(sum(x ^ 2)))
-  
   PCA <- eigens$vectors[,1:number]
   
   transformed <- d %*% PCA
